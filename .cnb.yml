@@ -1,0 +1,15 @@
+# .cnb.yml
+$:
+  # vscode 事件：专供页面中启动远程开发用
+  vscode:
+    - docker:
+        image: docker.cnb.cool/polaris-tian/wvp-docker:latest
+        build: .ide/Dockerfile
+        volumes:
+          - /root/.m2:cow
+          - node_modules:copy-on-write
+      runner:
+        cpus: 4
+      services:
+        - vscode
+        - docker
