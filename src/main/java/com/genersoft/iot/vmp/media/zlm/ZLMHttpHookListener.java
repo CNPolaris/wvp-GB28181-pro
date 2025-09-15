@@ -2,6 +2,8 @@ package com.genersoft.iot.vmp.media.zlm;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.genersoft.iot.vmp.alert.feishu.AlertCardThemeEnum;
+import com.genersoft.iot.vmp.alert.feishu.AlertTypeEnum;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.media.bean.MediaServer;
 import com.genersoft.iot.vmp.media.bean.ResultForOnPublish;
@@ -12,6 +14,7 @@ import com.genersoft.iot.vmp.media.zlm.dto.ZLMServerConfig;
 import com.genersoft.iot.vmp.media.zlm.dto.hook.*;
 import com.genersoft.iot.vmp.media.zlm.event.HookZlmServerKeepaliveEvent;
 import com.genersoft.iot.vmp.media.zlm.event.HookZlmServerStartEvent;
+import com.genersoft.iot.vmp.service.IFeishuService;
 import com.genersoft.iot.vmp.service.IMediaService;
 import com.genersoft.iot.vmp.utils.MediaServerUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,6 +52,8 @@ public class ZLMHttpHookListener {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
+    private IFeishuService feishuService;
 
     /**
      * 服务器定时上报时间，上报间隔可配置，默认10s上报一次
@@ -112,10 +118,17 @@ public class ZLMHttpHookListener {
         if (resultForOnPublish != null) {
             HookResultForOnPublish successResult = HookResultForOnPublish.getInstance(resultForOnPublish);
             log.info("[ZLM HOOK]推流鉴权 响应：{}->{}->>>>{}", param.getMediaServerId(), param, successResult);
+            // 飞书通知
+            String content = MessageFormat.format("**鉴权成功**\n **ID:** {0}\n **App:** {1}\n **Stream:** {2}\n **IP:** {3}\n", param.getMediaServerId(), param.getApp(), param.getStream(), param.getIp());
+            feishuService.sendCardNotice(content, AlertTypeEnum.DEVICE_PUBLISH_NOTICE, AlertCardThemeEnum.THEME_GREEN);
             return successResult;
         }else {
             HookResultForOnPublish fail = HookResultForOnPublish.Fail();
             log.info("[ZLM HOOK]推流鉴权 响应：{}->{}->>>>{}", param.getMediaServerId(), param, fail);
+            // 飞书通知
+            String content = MessageFormat.format("**鉴权失败**\n **ID:** {0}\n **App:** {1}\n **Stream:** {2}\n **IP:** {3}\n **Params:** {4}", param.getMediaServerId(), param.getApp(), param.getStream(), param.getIp(), param.getParams());
+            feishuService.sendCardNotice(content, AlertTypeEnum.DEVICE_PUBLISH_NOTICE, AlertCardThemeEnum.THEME_RED);
+
             return fail;
         }
     }
@@ -235,6 +248,10 @@ public class ZLMHttpHookListener {
         }catch (Exception e) {
             log.info("[ZLM-HOOK-ZLM启动] 发送通知失败 ", e);
         }
+
+        // 飞书通知
+        String content = MessageFormat.format("**ZLM启动成功**\n **ID:** {0}\n", zlmServerConfig.getMediaServerId());
+        feishuService.sendCardNotice(content, AlertTypeEnum.DEVICE_PUBLISH_NOTICE, AlertCardThemeEnum.THEME_GREEN);
 
         return HookResult.SUCCESS();
     }

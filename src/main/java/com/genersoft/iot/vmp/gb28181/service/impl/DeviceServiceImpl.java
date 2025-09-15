@@ -1,6 +1,8 @@
 package com.genersoft.iot.vmp.gb28181.service.impl;
 
 import com.alibaba.fastjson2.JSON;
+import com.genersoft.iot.vmp.alert.feishu.AlertCardThemeEnum;
+import com.genersoft.iot.vmp.alert.feishu.AlertTypeEnum;
 import com.genersoft.iot.vmp.common.CommonCallback;
 import com.genersoft.iot.vmp.common.enums.ChannelDataType;
 import com.genersoft.iot.vmp.conf.UserSetting;
@@ -28,6 +30,7 @@ import com.genersoft.iot.vmp.gb28181.transmit.cmd.ISIPCommander;
 import com.genersoft.iot.vmp.gb28181.transmit.event.request.impl.message.response.cmd.CatalogResponseMessageHandler;
 import com.genersoft.iot.vmp.media.bean.MediaServer;
 import com.genersoft.iot.vmp.media.service.IMediaServerService;
+import com.genersoft.iot.vmp.service.IFeishuService;
 import com.genersoft.iot.vmp.service.ISendRtpServerService;
 import com.genersoft.iot.vmp.service.bean.ErrorCallback;
 import com.genersoft.iot.vmp.service.redisMsg.IRedisRpcService;
@@ -52,6 +55,7 @@ import javax.sip.InvalidArgumentException;
 import javax.sip.ResponseEvent;
 import javax.sip.SipException;
 import javax.validation.constraints.NotNull;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
@@ -119,6 +123,9 @@ public class DeviceServiceImpl implements IDeviceService, CommandLineRunner {
 
     @Autowired
     private DeviceStatusTaskRunner deviceStatusTaskRunner;
+
+    @Autowired
+    private IFeishuService feishuService;
 
     private Device getDeviceByDeviceIdFromDb(String deviceId) {
         return deviceMapper.getDeviceByDeviceId(deviceId);
@@ -283,6 +290,10 @@ public class DeviceServiceImpl implements IDeviceService, CommandLineRunner {
         Device deviceInRedis = redisCatchStorage.getDevice(device.getDeviceId());
         Device deviceInDb = getDeviceByDeviceIdFromDb(device.getDeviceId());
 
+        // 飞书通知
+        String content = MessageFormat.format("**[设备上线]**\n **名称:** {0}\n **DeviceId:** {1}\n **IP:** {2}\n **Port:** {3}", device.getName(), device.getDeviceId(), device.getIp(), device.getPort());
+        feishuService.sendCardNoticeAsync(content, AlertTypeEnum.DEVICE_ONLINE_NOTICE, AlertCardThemeEnum.THEME_GREEN);
+
         String now = DateUtil.getNow();
         if (deviceInRedis != null && deviceInDb == null) {
             // redis 存在脏数据
@@ -400,6 +411,11 @@ public class DeviceServiceImpl implements IDeviceService, CommandLineRunner {
                 return;
             }
         }
+        // 飞书通知
+        String content = MessageFormat.format("**[设备离线]**\n **名称:** {0}\n **DeviceId:** {1}\n **心跳间隔:** {2}\n **心跳超时次数:** {3}\n **上次心跳时间:** {4}\n **上次注册时间:** {5}\n **离线原因:** {6}",
+                device.getName(), device.getDeviceId(), device.getHeartBeatInterval(), device.getHeartBeatCount(), device.getKeepaliveTime(), device.getRegisterTime(), reason);
+        feishuService.sendCardNoticeAsync(content, AlertTypeEnum.DEVICE_OFFLINE_NOTICE, AlertCardThemeEnum.THEME_ORANGE);
+
         log.info("[设备离线] {}, device：{}， 心跳间隔： {}，心跳超时次数： {}， 上次心跳时间：{}， 上次注册时间： {}", reason, deviceId,
                 device.getHeartBeatInterval(), device.getHeartBeatCount(), device.getKeepaliveTime(), device.getRegisterTime());
         device.setOnLine(false);

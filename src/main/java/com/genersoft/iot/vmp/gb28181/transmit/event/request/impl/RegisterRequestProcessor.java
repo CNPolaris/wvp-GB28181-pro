@@ -1,5 +1,7 @@
 package com.genersoft.iot.vmp.gb28181.transmit.event.request.impl;
 
+import com.genersoft.iot.vmp.alert.feishu.AlertCardThemeEnum;
+import com.genersoft.iot.vmp.alert.feishu.AlertTypeEnum;
 import com.genersoft.iot.vmp.conf.SipConfig;
 import com.genersoft.iot.vmp.conf.UserSetting;
 import com.genersoft.iot.vmp.gb28181.auth.DigestServerAuthenticationHelper;
@@ -13,6 +15,7 @@ import com.genersoft.iot.vmp.gb28181.transmit.SIPSender;
 import com.genersoft.iot.vmp.gb28181.transmit.event.request.ISIPRequestProcessor;
 import com.genersoft.iot.vmp.gb28181.transmit.event.request.SIPRequestProcessorParent;
 import com.genersoft.iot.vmp.gb28181.utils.SipUtils;
+import com.genersoft.iot.vmp.service.IFeishuService;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.utils.IpPortUtil;
 import gov.nist.javax.sip.address.AddressImpl;
@@ -35,6 +38,7 @@ import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Locale;
@@ -62,6 +66,9 @@ public class RegisterRequestProcessor extends SIPRequestProcessorParent implemen
 
     @Autowired
     private UserSetting userSetting;
+
+    @Autowired
+    private IFeishuService feishuService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -210,6 +217,11 @@ public class RegisterRequestProcessor extends SIPRequestProcessorParent implemen
                 device.setRegisterTime(DateUtil.getNow());
                 SipTransactionInfo sipTransactionInfo = new SipTransactionInfo((SIPResponse) response);
                 deviceService.online(device, sipTransactionInfo);
+
+                // 飞书通知
+                String content = MessageFormat.format("**[注册成功]**\n **名称:** {0}\n **DeviceId:** {1}\n **Address:** {2}", device.getName(), deviceId, requestAddress);
+                feishuService.sendCardNoticeAsync(content, AlertTypeEnum.DEVICE_REGISTER_NOTICE, AlertCardThemeEnum.THEME_GREEN);
+
             } else {
                 log.info("[注销成功] deviceId: {}->{}", deviceId, requestAddress);
                 deviceService.offline(deviceId, "主动注销");
