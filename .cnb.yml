@@ -13,3 +13,15 @@ $:
       services:
         - vscode
         - docker
+
+"**":
+  web_trigger_sync:
+    - stages:
+        - name: sync to github
+          imports: https://cnb.cool/polaris-tian/my-token/-/blob/main/env.yml
+          image: tencentcom/git-sync
+          settings:
+            target_url: https://github.com/CNPolaris/wvp-GB28181-pro.git
+            auth_type: https
+            username: ${GITHUB_USERNAME}
+            password: ${GITHUB_PASSWORD}
