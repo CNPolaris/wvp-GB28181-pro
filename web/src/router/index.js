@@ -70,12 +70,20 @@ export const constantRoutes = [
     path: '/channel',
     component: Layout,
     redirect: '/channel',
+    onlyIndex: 0,
     children: [{
-      path: '',
+      path: '/channel',
       name: 'Channel',
       component: () => import('@/views/channel/index'),
-      meta: {title: '通道列表', icon: 'channelManger'}
-    }]
+      meta: { title: '通道列表', icon: 'channelManger'}
+    },
+    {
+      path: '/channel/record/:channelId',
+      name: 'CommonRecord',
+      component: () => import('@/views/channel/record'),
+      meta: { title: '设备录像' }
+    }
+    ]
   },
   {
     path: '/device',
@@ -90,9 +98,24 @@ export const constantRoutes = [
         meta: { title: '国标设备', icon: 'device' }
       },
       {
+        hidden: true,
         path: '/device/record/:deviceId/:channelDeviceId',
         name: 'DeviceRecord',
         component: () => import('@/views/device/channel/record'),
+        meta: { title: '国标录像' }
+      },
+      {
+        path: '/jtDevice',
+        name: 'JTDevice',
+        component: () => import('@/views/jtDevice/index'),
+        meta: { title: '部标设备', icon: 'jtDevice' }
+      },
+      {
+        hidden: true,
+        path: '/jtDevice/record/:phoneNumber/:channelId',
+        name: 'JTDeviceRecord',
+        component: () => import('@/views/jtDevice/channel/record'),
+        meta: { title: '部标录像' }
       },
       {
         path: '/push',

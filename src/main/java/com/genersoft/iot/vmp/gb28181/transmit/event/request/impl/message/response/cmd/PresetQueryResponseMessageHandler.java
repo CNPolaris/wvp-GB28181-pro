@@ -81,9 +81,9 @@ public class PresetQueryResponseMessageHandler extends SIPRequestProcessorParent
                 }
                 return;
             }
-            int sumNum = Integer.parseInt(presetListNumElement.attributeValue("Num"));
+            int num = Integer.parseInt(presetListNumElement.attributeValue("Num"));
             List<Preset> presetQuerySipReqList = new ArrayList<>();
-            if (sumNum > 0) {
+            if (num > 0) {
                 for (Iterator<Element> presetIterator = presetListNumElement.elementIterator(); presetIterator.hasNext(); ) {
                     Element itemListElement = presetIterator.next();
                     Preset presetQuerySipReq = new Preset();
@@ -101,14 +101,8 @@ public class PresetQueryResponseMessageHandler extends SIPRequestProcessorParent
                     presetQuerySipReqList.add(presetQuerySipReq);
                 }
             }
-//            if (presetQuerySipReqList.size() == sumNum) {
-//                responseMessageHandler.handMessageEvent(rootElement, presetQuerySipReqList);
-//            }else {
-//                String sn = getText(element, "SN");
-//                addCatch(cmdType + "_" + sn, rootElement, presetQuerySipReqList);
-//            }
             String sn = getText(element, "SN");
-            addCatch(cmdType + "_" + sn, sumNum,  rootElement, presetQuerySipReqList);
+            addCatch(cmdType + "_" + sn, num,  rootElement, presetQuerySipReqList);
             try {
                 responseAck(request, Response.OK);
             } catch (InvalidArgumentException | ParseException | SipException e) {
@@ -136,7 +130,7 @@ public class PresetQueryResponseMessageHandler extends SIPRequestProcessorParent
                 List<Preset> data = messageResponseTask.getData();
                 data.addAll(presetQuerySipReqList);
                 if (data.size() == sumNum) {
-                    responseMessageHandler.handMessageEvent(rootElement, presetQuerySipReqList);
+                    responseMessageHandler.handMessageEvent(rootElement, data);
                     mesageMap.remove(key);
                     boolean remove = delayQueue.remove(messageResponseTask);
                     if (!remove) {

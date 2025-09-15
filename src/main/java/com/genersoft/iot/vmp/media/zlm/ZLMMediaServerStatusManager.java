@@ -247,6 +247,7 @@ public class ZLMMediaServerStatusManager {
         }else {
             mediaServerItem.setTranscodeSuffix(zlmServerConfig.getTranscodeSuffix());
         }
+        mediaServerItem.setRtpProxyPort(zlmServerConfig.getRtpProxyPort());
         mediaServerItem.setHookAliveInterval(10F);
     }
 
@@ -257,7 +258,6 @@ public class ZLMMediaServerStatusManager {
         String hookPrefix = String.format("%s://%s:%s%s/index/hook", protocol, mediaServerItem.getHookIp(), serverPort, (serverServletContextPath == null || "/".equals(serverServletContextPath)) ? "" : serverServletContextPath);
 
         Map<String, Object> param = new HashMap<>();
-        param.put("api.secret",mediaServerItem.getSecret()); // -profile:v Baseline
         if (mediaServerItem.getRtspPort() != 0) {
             param.put("ffmpeg.snap", "%s -rtsp_transport tcp -i %s -y -f mjpeg -frames:v 1 %s");
         }
@@ -289,8 +289,6 @@ public class ZLMMediaServerStatusManager {
         // 等zlm支持给每个rtpServer设置关闭音频的时候可以不设置此选项
         if (mediaServerItem.isRtpEnable() && !ObjectUtils.isEmpty(mediaServerItem.getRtpPortRange())) {
             param.put("rtp_proxy.port_range", mediaServerItem.getRtpPortRange().replace(",", "-"));
-        }else {
-            param.put("rtp_proxy.port", mediaServerItem.getRtpProxyPort());
         }
 
         if (!ObjectUtils.isEmpty(mediaServerItem.getRecordPath())) {

@@ -15,12 +15,22 @@ import {
   clearUnusualCivilCodeList,
   getIndustryList,
   getTypeList,
-  getNetworkIdentificationList, playChannel, addToRegion, deleteFromRegion, addToGroup, deleteFromGroup, getList,
+  getNetworkIdentificationList,
+  playChannel,
+  addToRegion,
+  deleteFromRegion,
+  addToGroup,
+  deleteFromGroup,
+  getList,
   addPointForCruise,
-  addPreset, auxiliary,
+  addPreset,
+  auxiliary,
   callPreset,
   deletePointForCruise,
-  deletePreset, focus, iris, ptz,
+  deletePreset,
+  focus,
+  iris,
+  ptz,
   queryPreset,
   setCruiseSpeed,
   setCruiseTime,
@@ -30,7 +40,15 @@ import {
   startCruise,
   startScan,
   stopCruise,
-  stopScan, wiper, getAllForMap
+  stopScan,
+  wiper,
+  stopPlayChannel,
+  queryRecord,
+  playback,
+  stopPlayback,
+  pausePlayback,
+  resumePlayback,
+  seekPlayback, speedPlayback
 } from '@/api/commonChannel'
 
 const actions = {
@@ -254,6 +272,16 @@ const actions = {
       })
     })
   },
+  stopPlayChannel({ commit }, channelId) {
+    return new Promise((resolve, reject) => {
+      stopPlayChannel(channelId).then(response => {
+        const { data } = response
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
   getList({ commit }, param) {
     return new Promise((resolve, reject) => {
       getList(param).then(response => {
@@ -464,9 +492,69 @@ const actions = {
       })
     })
   },
-  getAllForMap({ commit }, params) {
+  queryRecord({ commit }, params) {
     return new Promise((resolve, reject) => {
-      getAllForMap(params).then(response => {
+      queryRecord(params).then(response => {
+        const { data } = response
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  playback({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      playback(params).then(response => {
+        const { data } = response
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  stopPlayback({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      stopPlayback(params).then(response => {
+        const { data } = response
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  pausePlayback({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      pausePlayback(params).then(response => {
+        const { data } = response
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  resumePlayback({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      resumePlayback(params).then(response => {
+        const { data } = response
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  seekPlayback({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      seekPlayback(params).then(response => {
+        const { data } = response
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  speedPlayback({ commit }, params) {
+    return new Promise((resolve, reject) => {
+      speedPlayback(params).then(response => {
         const { data } = response
         resolve(data)
       }).catch(error => {

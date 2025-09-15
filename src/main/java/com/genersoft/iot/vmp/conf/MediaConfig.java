@@ -2,6 +2,7 @@ package com.genersoft.iot.vmp.conf;
 
 import com.genersoft.iot.vmp.media.bean.MediaServer;
 import com.genersoft.iot.vmp.utils.DateUtil;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ import java.util.regex.Pattern;
 @Slf4j
 @Configuration("mediaConfig")
 @Order(0)
+@Data
 public class MediaConfig{
 
     // 修改必须配置，不再支持自动获取
@@ -66,6 +68,9 @@ public class MediaConfig{
     @Value("${media.rtp-proxy-port:0}")
     private Integer rtpProxyPort = 0;
 
+    @Value("${media.jtt-proxy-port:0}")
+    private Integer jttProxyPort = 0;
+
     @Value("${media.rtsp-port:0}")
     private Integer rtspPort = 0;
 
@@ -99,33 +104,7 @@ public class MediaConfig{
     @Value("${media.type:zlm}")
     private String type;
 
-    public String getId() {
-        return id;
-    }
 
-    public String getIp() {
-        return ip;
-    }
-
-    public String getHookIp() {
-        return hookIp;
-    }
-
-    public int getHttpPort() {
-        return httpPort;
-    }
-
-    public int getHttpSSlPort() {
-        return httpSSlPort;
-    }
-
-    public int getRtmpPort() {
-        return rtmpPort;
-    }
-    
-    public int getRtmpSSlPort() {
-        return rtmpSSlPort;
-    }
 
     public int getRtpProxyPort() {
         if (rtpProxyPort == null) {
@@ -136,32 +115,12 @@ public class MediaConfig{
 
     }
 
-    public int getRtspPort() {
-        return rtspPort;
-    }
-
-    public int getRtspSSLPort() {
-        return rtspSSLPort;
-    }
-
-    public boolean isAutoConfig() {
-        return autoConfig;
-    }
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public boolean isRtpEnable() {
-        return rtpEnable;
-    }
-
-    public String getRtpPortRange() {
-        return rtpPortRange;
-    }
-    
-    public int getRecordAssistPort() {
-        return recordAssistPort;
+    public Integer getJttProxyPort() {
+        if (jttProxyPort == null) {
+            return 0;
+        }else {
+            return jttProxyPort;
+        }
     }
 
     public String getSdpIp() {
@@ -189,10 +148,6 @@ public class MediaConfig{
         }else {
             return streamIp;
         }
-    }
-
-    public String getSipDomain() {
-        return sipDomain;
     }
 
     public MediaServer getMediaSerItem(){
@@ -229,6 +184,7 @@ public class MediaConfig{
         mediaServer.setRtmpPort(rtmpPort);
         mediaServer.setRtmpSSlPort(rtmpSSlPort);
         mediaServer.setRtpProxyPort(getRtpProxyPort());
+        mediaServer.setJttProxyPort(getJttProxyPort());
         mediaServer.setRtspPort(rtspPort);
         mediaServer.setRtspSSLPort(rtspSSLPort);
         mediaServer.setAutoConfig(autoConfig);
@@ -250,42 +206,10 @@ public class MediaConfig{
         return mediaServer;
     }
 
-    public Integer getRecordDay() {
-        return recordDay;
-    }
-
-    public void setRecordDay(Integer recordDay) {
-        this.recordDay = recordDay;
-    }
-
-    public String getRecordPath() {
-        return recordPath;
-    }
-
-    public void setRecordPath(String recordPath) {
-        this.recordPath = recordPath;
-    }
-
-    public String getRtpSendPortRange() {
-        return rtpSendPortRange;
-    }
-
-    public void setRtpSendPortRange(String rtpSendPortRange) {
-        this.rtpSendPortRange = rtpSendPortRange;
-    }
-
     private boolean isValidIPAddress(String ipAddress) {
         if ((ipAddress != null) && (!ipAddress.isEmpty())) {
             return Pattern.matches("^([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}$", ipAddress);
         }
         return false;
-    }
-
-    public String getWanIp() {
-        return wanIp;
-    }
-
-    public void setWanIp(String wanIp) {
-        this.wanIp = wanIp;
     }
 }
